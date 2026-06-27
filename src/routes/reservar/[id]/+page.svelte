@@ -8,6 +8,7 @@
   
   let service = $state<any>(null);
   let loading = $state(true);
+  let step = $state(1);
   
   // Datos de la reserva
   let selectedDate = $state<Date | null>(null);
@@ -53,6 +54,11 @@
     const prev = new Date(currentMonth);
     prev.setMonth(prev.getMonth() - 1);
     currentMonth = prev;
+  };
+
+  const nextStep = () => step++;
+  const prevStep = () => {
+    if (step > 1) step--;
   };
 
   const selectDay = async (day: Date | null) => {
@@ -122,8 +128,9 @@
     return day >= today && day <= maxDate;
   };
 
-  const isSameDay = (d1: Date, d2: Date) => {
-    return d1.getTime() === d2.getTime();
+  const selectTime = (time: string) => {
+    selectedTime = time;
+    nextStep();
   };
 
   const submitBooking = async (e: Event) => {
@@ -150,7 +157,7 @@
 
     isSubmitting = false;
     if (!error) {
-      showSuccess = true;
+      step = 4;
     } else {
       alert("Hubo un error al agendar. Por favor, intenta de nuevo.");
       console.error(error);
@@ -160,11 +167,21 @@
 
 <div class="booking-layout">
   <header class="booking-header">
-    <a href="/#servicios" class="back-btn">
-      <ArrowLeft size={24} />
-    </a>
+    {#if step > 1 && step < 4}
+      <button class="back-btn" onclick={prevStep}>
+        <ArrowLeft size={24} />
+      </button>
+    {:else}
+      <a href="/#servicios" class="back-btn">
+        <ArrowLeft size={24} />
+      </a>
+    {/if}
     <div class="header-title">
-      Agendar Cita
+      {#if step === 1} Confirmar Servicio
+      {:else if step === 2} Elegir Fecha y Hora
+      {:else if step === 3} Tus Datos
+      {:else} ¡Cita Confirmada!
+      {/if}
     </div>
     <div style="width: 24px"></div>
   </header>
@@ -174,9 +191,18 @@
       <div class="loading-state">Cargando detalles...</div>
     {:else if !service}
       <div class="error-state">Servicio no encontrado.</div>
-    {:else if showSuccess}
+    {:else}
+      
+      <!-- WIZARD PROGRESS BAR -->
+      {#if step < 4}
+        <div class="progress-bar">
+          <div class="progress-fill" style="width: {(step / 3) * 100}%"></div>
+        </div>
+      {/if}
+
       <!-- SUCCESS SCREEN -->
-      <div class="success-container animation-scale">
+      {#if step === 4}
+        <div class="success-container animation-scale">
         <div class="calendar-card">
           <div class="calendar-header">
             {new Intl.DateTimeFormat('es', { month: 'long' }).format(selectedDate as Date).toUpperCase()}
@@ -207,22 +233,35 @@
 
         <a href="/" class="btn-cta full-width">Volver al Inicio</a>
       </div>
-    {:else}
-      <!-- SINGLE PAGE FLOW -->
-      <div class="service-summary">
-        <div class="service-image" style="background-image: url({service.image_url})"></div>
-        <div class="service-info">
-          <h3>{service.name}</h3>
-          <div class="meta">
-            <span class="price">${service.price}</span>
-            <span class="duration"><Clock size={16}/> {service.duration_minutes} min</span>
-          </div>
-        </div>
-      </div>
+      {/if}
 
-      <div class="flow-container">
-        
-        <section class="booking-section">
+      {#if step === 1}
+        <div class="step-container animation-fade">
+          <div class="service-card">
+            <div class="service-image" style="background-image: url({service.image_url})"></div>
+            <div class="service-info" style="padding: 24px;">
+              <h3 style="font-size: 1.4rem; margin-bottom: 12px;">{service.name}</h3>
+              <p style="color: #666; margin-bottom: 24px;">{service.description}</p>
+              <div class="meta-row" style="display:flex; justify-content:space-between; align-items:center; border-top:1px solid #eee; padding-top:16px;">
+                <span style="font-size: 1.5rem; color: var(--color-primary); font-weight: 500;">${service.price}</span>
+                <span class="duration"><Clock size={16}/> {service.duration_minutes} min</span>
+              </div>
+            </div>
+          </div>
+          <button class="btn-cta full-width" onclick={nextStep}>
+            Continuar
+          </button>
+        </div>
+      {/if}
+
+      {#if step === 2}
+        <div class="step-container animation-slide">
+          
+          <div class="summary-chip" style="background:white; padding:12px 16px; border-radius:12px; margin-bottom:24px; box-shadow:var(--shadow-sm);">
+            <span style="opacity:0.6;">Servicio:</span> {service.name}
+          </div>
+
+          <section class="booking-section" style="padding:0; box-shadow:none; background:transparent;">
           <div class="section-header">
             <CalendarIcon size={20} class="section-icon" />
             <h2>1. Selecciona la Fecha</h2>
@@ -258,35 +297,44 @@
             </div>
             <div class="calendar-note">Las citas solo pueden reservarse con hasta 10 días de anticipación.</div>
           </div>
-        </section>
 
-        {#if selectedDate}
-          <section class="booking-section animation-slide">
-            <div class="section-header">
-              <Clock size={20} class="section-icon" />
-              <h2>2. Elige la Hora para el {new Intl.DateTimeFormat('es', { weekday: 'long', day: 'numeric', month: 'long' }).format(selectedDate)}</h2>
-            </div>
-            
-            {#if isLoadingTimes}
-              <div class="loading-times">Consultando disponibilidad...</div>
-            {:else if dynamicAvailableTimes.length > 0}
-              <div class="times-grid">
-                {#each dynamicAvailableTimes as time}
-                  <button 
-                    class="time-btn {selectedTime === time ? 'active' : ''}"
-                    onclick={() => selectedTime = time}
-                  >
-                    {time}
-                  </button>
-                {/each}
+          {#if selectedDate}
+            <div class="animation-slide" style="margin-top: 32px;">
+              <div class="section-header">
+                <Clock size={20} class="section-icon" />
+                <h2>2. Elige la Hora para el {new Intl.DateTimeFormat('es', { weekday: 'long', day: 'numeric', month: 'long' }).format(selectedDate)}</h2>
               </div>
-            {:else}
-              <div class="empty-state">Día ocupado. Por favor elige otra fecha.</div>
-            {/if}
-          </section>
-        {/if}
+              
+              {#if isLoadingTimes}
+                <div class="loading-times">Consultando disponibilidad...</div>
+              {:else if dynamicAvailableTimes.length > 0}
+                <div class="times-grid">
+                  {#each dynamicAvailableTimes as time}
+                    <button 
+                      class="time-btn"
+                      onclick={() => selectTime(time)}
+                    >
+                      {time}
+                    </button>
+                  {/each}
+                </div>
+              {:else}
+                <div class="empty-state">Día ocupado. Por favor elige otra fecha.</div>
+              {/if}
+            </div>
+          {/if}
+        </div>
+      {/if}
 
-        <section class="booking-section" class:disabled-section={!selectedDate || !selectedTime}>
+      {#if step === 3}
+        <div class="step-container animation-slide">
+          
+          <div class="summary-chip" style="background:white; padding:20px; border-radius:16px; margin-bottom:32px; box-shadow:var(--shadow-sm); display:flex; flex-direction:column; gap:12px;">
+            <div><strong style="color:var(--color-primary);">Servicio:</strong> {service.name}</div>
+            <div><strong style="color:var(--color-primary);">Cuándo:</strong> {new Intl.DateTimeFormat('es', { weekday: 'short', day: 'numeric', month: 'short' }).format(selectedDate as Date)} a las {selectedTime}</div>
+          </div>
+
+          <section class="booking-section" style="padding:0; box-shadow:none; background:transparent;">
           <div class="section-header">
             <User size={20} class="section-icon" />
             <h2>3. Tus Datos</h2>
@@ -315,8 +363,8 @@
             <p class="secure-note">Tus datos están seguros. Recibirás un mensaje de confirmación por WhatsApp.</p>
           </form>
         </section>
-
-      </div>
+        </div>
+      {/if}
     {/if}
   </main>
 </div>
@@ -347,9 +395,13 @@
   }
 
   .back-btn {
+    background: none;
+    border: none;
     color: var(--color-grafito);
     cursor: pointer;
     display: flex;
+    align-items: center;
+    justify-content: center;
     padding: 4px;
     margin-left: -4px;
   }
@@ -361,53 +413,53 @@
     color: var(--color-grafito);
   }
 
-  .service-summary {
+  .booking-content {
+    flex-grow: 1;
+    padding: 0;
     display: flex;
-    padding: 16px 24px;
+    flex-direction: column;
+  }
+
+  .progress-bar {
+    height: 4px;
+    background-color: rgba(0,0,0,0.05);
+    width: 100%;
+  }
+
+  .progress-fill {
+    height: 100%;
+    background-color: var(--color-primary);
+    transition: width 0.4s ease;
+  }
+
+  .step-container {
+    padding: 32px 24px;
+    flex-grow: 1;
+    display: flex;
+    flex-direction: column;
+  }
+
+  /* Animaciones */
+  .animation-fade { animation: fade 0.3s ease-out; }
+  .animation-slide { animation: slideUp 0.4s cubic-bezier(0.2, 0.8, 0.2, 1); }
+  .animation-scale { animation: popIn 0.5s cubic-bezier(0.2, 0.8, 0.2, 1); }
+
+  @keyframes fade { from { opacity: 0; } to { opacity: 1; } }
+  @keyframes slideUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+  @keyframes popIn { from { opacity: 0; transform: scale(0.95); } to { opacity: 1; transform: scale(1); } }
+
+  .service-card {
     background: var(--color-blanco);
-    gap: 16px;
-    align-items: center;
-    border-bottom: 1px solid rgba(0,0,0,0.03);
+    border-radius: 20px;
+    overflow: hidden;
+    box-shadow: var(--shadow-sm);
+    margin-bottom: 32px;
   }
 
   .service-image {
-    width: 64px;
-    height: 64px;
-    border-radius: 12px;
+    height: 200px;
     background-size: cover;
     background-position: center;
-  }
-
-  .service-info h3 { margin: 0 0 4px 0; font-size: 1.1rem; color: var(--color-grafito); }
-  
-  .service-info .meta {
-    display: flex;
-    gap: 12px;
-    font-size: 0.9rem;
-    color: var(--color-primary);
-    font-weight: 500;
-  }
-  
-  .service-info .duration { color: #888; display: flex; align-items: center; gap: 4px; }
-
-  .flow-container {
-    padding: 24px;
-    display: flex;
-    flex-direction: column;
-    gap: 32px;
-  }
-
-  .booking-section {
-    background: var(--color-blanco);
-    padding: 24px;
-    border-radius: 20px;
-    box-shadow: var(--shadow-sm);
-  }
-
-  .disabled-section {
-    opacity: 0.5;
-    pointer-events: none;
-    filter: grayscale(1);
   }
 
   .section-header {
