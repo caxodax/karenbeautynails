@@ -12,10 +12,10 @@
     <p>Diseño de uñas y estética profesional en un ambiente diseñado para tu relajación absoluta.</p>
     
     <div class="cta-group">
-      <button class="btn-cta">
+      <a href="#servicios" class="btn-cta" style="display:inline-flex; text-decoration:none;">
         Agendar Cita
         <ArrowRight size={18} style="margin-left: 8px" />
-      </button>
+      </a>
     </div>
   </div>
 </section>
