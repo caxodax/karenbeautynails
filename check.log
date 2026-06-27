@@ -1,0 +1,41 @@
+
+> karenbeauty@0.0.1 check
+> svelte-kit sync && svelte-check --tsconfig ./tsconfig.json
+
+Loading svelte-check in workspace: /home/lmontes/Documentos/Telegram/KarenBeauty
+Getting Svelte diagnostics...
+
+/home/lmontes/Documentos/Telegram/KarenBeauty/src/lib/components/Testimonials.svelte:96:5
+Warn: Unknown property: 'snap-type' (css)
+    padding-bottom: 24px;
+    snap-type: x mandatory;
+    -webkit-overflow-scrolling: touch;
+
+/home/lmontes/Documentos/Telegram/KarenBeauty/src/routes/admin/+layout.svelte:44:9
+Warn: Using `<slot>` to render parent content is deprecated. Use `{@render ...}` tags instead
+https://svelte.dev/e/slot_element_deprecated (svelte)
+    <main class="content">
+        <slot />
+    </main>
+
+/home/lmontes/Documentos/Telegram/KarenBeauty/src/routes/admin/+layout.svelte:34:34
+Error: This comparison appears to be unintentional because the types '"/" | "/admin" | "/admin/testimonios" | `${`/reservar/${string}` & {}}` | `/${string}/` | `/${string}/admin` | `/${string}/admin/testimonios` | `/${string}${`/reservar/${string}` & {}}`' and '"/admin/servicios"' have no overlap. (ts)
+                href="/admin/servicios"
+                class="nav-item {$page.url.pathname === '/admin/servicios'
+                    ? 'active'
+
+/home/lmontes/Documentos/Telegram/KarenBeauty/src/routes/reservar/[id]/+page.svelte:242:57
+Error: Argument of type 'Date | null' is not assignable to parameter of type 'Date'.
+  Type 'null' is not assignable to type 'Date'. (ts)
+            <div class="summary-item">
+              <strong>Cuándo:</strong> {formatShortDate(selectedDate)} a las {selectedTime}
+            </div>
+
+/home/lmontes/Documentos/Telegram/KarenBeauty/src/routes/reservar/[id]/+page.svelte:278:111
+Error: Argument of type 'Date | null' is not assignable to parameter of type 'Date'.
+  Type 'null' is not assignable to type 'Date'. (ts)
+          <h2>¡Reserva Confirmada!</h2>
+          <p class="success-msg">Hola <strong>{clientName}</strong>, te esperamos el <strong>{formatShortDate(selectedDate)} a las {selectedTime}</strong> para tu cita de {service.name}.</p>
+
+====================================
+svelte-check found 3 errors and 2 warnings in 3 files

@@ -1,0 +1,98 @@
+
+> karenbeauty@0.0.1 check
+> svelte-kit sync && svelte-check --tsconfig ./tsconfig.json
+
+Loading svelte-check in workspace: /home/lmontes/Documentos/Telegram/KarenBeauty
+Getting Svelte diagnostics...
+
+/home/lmontes/Documentos/Telegram/KarenBeauty/src/lib/components/Testimonials.svelte:96:5
+Warn: Unknown property: 'snap-type' (css)
+    padding-bottom: 24px;
+    snap-type: x mandatory;
+    -webkit-overflow-scrolling: touch;
+
+/home/lmontes/Documentos/Telegram/KarenBeauty/src/routes/reservar/[id]/+page.svelte:47:22
+Error: Parameter 'day' implicitly has an 'any' type. (js)
+
+  const selectDay = (day) => {
+    selectedDate = day;
+
+/home/lmontes/Documentos/Telegram/KarenBeauty/src/routes/reservar/[id]/+page.svelte:52:23
+Error: Parameter 'time' implicitly has an 'any' type. (js)
+
+  const selectTime = (time) => {
+    selectedTime = time;
+
+/home/lmontes/Documentos/Telegram/KarenBeauty/src/routes/reservar/[id]/+page.svelte:57:28
+Error: Parameter 'date' implicitly has an 'any' type. (js)
+
+  const formatShortDate = (date) => {
+    return new Intl.DateTimeFormat('es', { weekday: 'short', day: 'numeric', month: 'short' }).format(date);
+
+/home/lmontes/Documentos/Telegram/KarenBeauty/src/routes/reservar/[id]/+page.svelte:61:32
+Error: Parameter 'event' implicitly has an 'any' type. (js)
+
+  const submitBooking = async (event) => {
+    event.preventDefault();
+
+/home/lmontes/Documentos/Telegram/KarenBeauty/src/routes/reservar/[id]/+page.svelte:68:21
+Error: 'selectedDate' is possibly 'null'. (js)
+    // Formatear fecha y hora para la BD
+    const dateStr = selectedDate.toISOString().split('T')[0];
+    const appointmentDate = new Date(`${dateStr}T${selectedTime}:00`);
+
+/home/lmontes/Documentos/Telegram/KarenBeauty/src/routes/reservar/[id]/+page.svelte:75:23
+Error: 'service' is possibly 'null'. (js)
+        { 
+          service_id: service.id,
+          client_name: clientName,
+
+/home/lmontes/Documentos/Telegram/KarenBeauty/src/routes/reservar/[id]/+page.svelte:133:78
+Error: Property 'image_url' does not exist on type 'never'. (js)
+          <div class="service-card">
+            <div class="service-image" style="background-image: url({service.image_url})"></div>
+            <div class="service-details">
+
+/home/lmontes/Documentos/Telegram/KarenBeauty/src/routes/reservar/[id]/+page.svelte:135:28
+Error: Property 'name' does not exist on type 'never'. (js)
+            <div class="service-details">
+              <h2>{service.name}</h2>
+              <p class="desc">{service.description}</p>
+
+/home/lmontes/Documentos/Telegram/KarenBeauty/src/routes/reservar/[id]/+page.svelte:136:40
+Error: Property 'description' does not exist on type 'never'. (js)
+              <h2>{service.name}</h2>
+              <p class="desc">{service.description}</p>
+              <div class="meta-row">
+
+/home/lmontes/Documentos/Telegram/KarenBeauty/src/routes/reservar/[id]/+page.svelte:138:47
+Error: Property 'price' does not exist on type 'never'. (js)
+              <div class="meta-row">
+                <span class="price">${service.price}</span>
+                <span class="duration"><Clock size={16}/> {service.duration_minutes} min</span>
+
+/home/lmontes/Documentos/Telegram/KarenBeauty/src/routes/reservar/[id]/+page.svelte:139:68
+Error: Property 'duration_minutes' does not exist on type 'never'. (js)
+                <span class="price">${service.price}</span>
+                <span class="duration"><Clock size={16}/> {service.duration_minutes} min</span>
+              </div>
+
+/home/lmontes/Documentos/Telegram/KarenBeauty/src/routes/reservar/[id]/+page.svelte:154:64
+Error: Property 'name' does not exist on type 'never'. (js)
+          <div class="summary-chip">
+            <span class="chip-label">Servicio:</span> {service.name} (${service.price})
+          </div>
+
+/home/lmontes/Documentos/Telegram/KarenBeauty/src/routes/reservar/[id]/+page.svelte:154:81
+Error: Property 'price' does not exist on type 'never'. (js)
+          <div class="summary-chip">
+            <span class="chip-label">Servicio:</span> {service.name} (${service.price})
+          </div>
+
+/home/lmontes/Documentos/Telegram/KarenBeauty/src/routes/reservar/[id]/+page.svelte:235:181
+Error: Property 'name' does not exist on type 'never'. (js)
+          <h2>¡Reserva Confirmada!</h2>
+          <p class="success-msg">Hola <strong>{clientName}</strong>, te esperamos el <strong>{formatShortDate(selectedDate)} a las {selectedTime}</strong> para tu cita de {service.name}.</p>
+
+====================================
+svelte-check found 14 errors and 1 warning in 2 files

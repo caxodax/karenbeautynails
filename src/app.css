@@ -1,0 +1,88 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Outfit:wght@300;400;500;600;700&display=swap');
+
+:root {
+  /* Paleta Cromática Premium Refinada */
+  --color-blanco: #FFFFFF;
+  --color-grafito: #1a1a1a;
+  --color-primary: #b3666d; /* Rosa viejo / Dusty rose elegante */
+  --color-primary-light: #c98086;
+  --color-neutro: #faf9f7; /* Blanco roto/crema muy sutil para dar calidez */
+  --color-accent: #e8dcd8; /* Tono nude/rose gold sutil para detalles */
+  --color-accent-dark: #c2ada4;
+
+  /* Escala Tipográfica */
+  --font-sans: 'Inter', system-ui, -apple-system, sans-serif;
+  --font-heading: 'Outfit', sans-serif; /* Tipografía más chic para títulos */
+  --font-size-body: 10.5pt;
+  --line-height-body: 1.6;
+  --font-size-h1: clamp(2.5rem, 5vw, 4rem);
+  --font-size-h2: clamp(1.8rem, 3vw, 2.5rem);
+  --line-height-heading: 1.1;
+
+  /* Animaciones y Sombras */
+  --transition-smooth: 0.3s cubic-bezier(0.2, 0.8, 0.2, 1);
+  --shadow-sm: 0 4px 12px rgba(0, 0, 0, 0.03);
+  --shadow-md: 0 12px 32px rgba(0, 0, 0, 0.06);
+  --shadow-colored: 0 12px 24px rgba(179, 102, 109, 0.2);
+}
+
+/* Reset Básico y Fundamentos de UI/UX */
+*, *::before, *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: var(--font-sans);
+  font-size: var(--font-size-body);
+  line-height: var(--line-height-body);
+  color: var(--color-grafito);
+  background-color: var(--color-neutro);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  overflow-x: hidden;
+}
+
+h1, h2, h3, h4, h5, h6 {
+  font-family: var(--font-heading);
+  line-height: var(--line-height-heading);
+  font-weight: 500; 
+  letter-spacing: -0.02em;
+}
+
+/* Estilos globales para botones de conversión (CTA) */
+.btn-cta {
+  background-color: var(--color-primary);
+  color: var(--color-blanco);
+  border: none;
+  border-radius: 100px; /* Forma de píldora más elegante */
+  padding: 14px 32px;
+  font-size: 11pt;
+  font-weight: 500;
+  font-family: var(--font-sans);
+  cursor: pointer;
+  min-height: 48px; 
+  min-width: 48px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  transition: all var(--transition-smooth);
+  box-shadow: var(--shadow-colored);
+}
+
+.btn-cta:hover {
+  background-color: var(--color-primary-light);
+  transform: translateY(-2px);
+  box-shadow: 0 16px 32px rgba(179, 102, 109, 0.3);
+}
+
+.btn-cta:active {
+  transform: scale(0.97) translateY(0); 
+  box-shadow: var(--shadow-colored);
+}
+
+.no-select {
+  user-select: none;
+  -webkit-user-select: none;
+}
