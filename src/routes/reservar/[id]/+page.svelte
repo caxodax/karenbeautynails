@@ -264,7 +264,7 @@
           <section class="booking-section animation-slide">
             <div class="section-header">
               <Clock size={20} class="section-icon" />
-              <h2>2. Elige la Hora</h2>
+              <h2>2. Elige la Hora para el {new Intl.DateTimeFormat('es', { weekday: 'long', day: 'numeric', month: 'long' }).format(selectedDate)}</h2>
             </div>
             
             {#if isLoadingTimes}
