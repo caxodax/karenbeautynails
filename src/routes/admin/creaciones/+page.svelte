@@ -7,11 +7,19 @@
   let categories = $state<any[]>([]);
   let loading = $state(true);
 
-  // Pagination state
+  // Pagination and Filtering state
+  let selectedCategory = $state<number | null>(null);
   let currentPage = $state(1);
   const itemsPerPage = 6;
-  let totalPages = $derived(Math.max(1, Math.ceil(items.length / itemsPerPage)));
-  let paginatedItems = $derived(items.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage));
+  
+  let filteredItems = $derived(
+    selectedCategory === null 
+      ? items 
+      : items.filter(img => img.category_id === selectedCategory)
+  );
+  
+  let totalPages = $derived(Math.max(1, Math.ceil(filteredItems.length / itemsPerPage)));
+  let paginatedItems = $derived(filteredItems.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage));
 
   // Form state for Images
   let showForm = $state(false);
@@ -284,8 +292,28 @@
       {/if}
     </div>
   {:else}
+    <!-- Filtros de Categoría Admin -->
+    {#if categories.length > 0}
+      <div class="admin-filters">
+        <button 
+          class="chip {selectedCategory === null ? 'active' : ''}" 
+          onclick={() => { selectedCategory = null; currentPage = 1; }}
+        >
+          Todos
+        </button>
+        {#each categories as cat}
+          <button 
+            class="chip {selectedCategory === cat.id ? 'active' : ''}" 
+            onclick={() => { selectedCategory = cat.id; currentPage = 1; }}
+          >
+            {cat.name}
+          </button>
+        {/each}
+      </div>
+    {/if}
+
     <div class="gallery-grid">
-      {#if items.length === 0}
+      {#if filteredItems.length === 0}
         <p class="empty-state">No has subido ninguna foto a la galería aún.</p>
       {:else}
         {#each paginatedItems as item (item.id)}
@@ -689,6 +717,37 @@
     font-size: 0.95rem;
     color: #555;
     font-weight: 500;
+  }
+
+  /* Admin Filters */
+  .admin-filters {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-bottom: 24px;
+  }
+  
+  .chip {
+    background-color: white;
+    border: 1px solid #eaeaea;
+    color: #666;
+    padding: 6px 16px;
+    border-radius: 50px;
+    font-size: 0.9rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+
+  .chip:hover {
+    border-color: #ccc;
+    color: var(--color-grafito);
+  }
+
+  .chip.active {
+    background-color: var(--color-primary, #b3666d);
+    border-color: var(--color-primary, #b3666d);
+    color: white;
   }
 
   @media (max-width: 600px) {

@@ -53,6 +53,12 @@
       .order('created_at', { ascending: false });
 
     if (!imgError && imgData && imgData.length > 0) {
+      // Agrupar y ordenar alfabéticamente por el nombre de la categoría
+      imgData.sort((a, b) => {
+        const catA = a.gallery_categories?.name || 'Z'; 
+        const catB = b.gallery_categories?.name || 'Z';
+        return catA.localeCompare(catB);
+      });
       images = imgData;
     } else {
       images = defaultImages;

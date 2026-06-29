@@ -132,7 +132,7 @@
         margin: 0 auto;
     }
 
-    /* Responsive para móviles (Dashboard on mobile) */
+    /* Responsive para móviles (Dashboard on mobile premium) */
     @media (max-width: 768px) {
         .admin-layout {
             flex-direction: column;
@@ -141,19 +141,71 @@
         .sidebar {
             width: 100%;
             height: auto;
-            position: relative;
-            padding: 16px;
+            position: sticky;
+            top: 0;
+            padding: 16px 24px;
             border-right: none;
             border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+            z-index: 40;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .brand {
+            margin-bottom: 0;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .brand h2 {
+            font-size: 1.4rem;
+        }
+
+        .badge {
+            margin-top: 0;
         }
 
         nav {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            background: white;
             flex-direction: row;
-            overflow-x: auto;
+            justify-content: space-around;
+            padding: 12px 8px;
+            padding-bottom: calc(12px + env(safe-area-inset-bottom));
+            border-top: 1px solid rgba(0, 0, 0, 0.05);
+            box-shadow: 0 -4px 24px rgba(0, 0, 0, 0.04);
+            z-index: 50;
+            gap: 4px;
+        }
+
+        .nav-item {
+            flex-direction: column;
+            gap: 6px;
+            padding: 10px 4px;
+            font-size: 0.75rem;
+            border-radius: 16px;
+            flex: 1;
+            justify-content: center;
+            text-align: center;
+        }
+
+        .nav-item:hover {
+            background-color: transparent;
+        }
+
+        .nav-item.active {
+            background-color: transparent;
+            color: var(--color-primary, #b3666d);
         }
 
         .content {
-            padding: 20px;
+            padding: 24px 20px;
+            padding-bottom: 120px; /* Espacio para el bottom nav */
         }
     }
 </style>
