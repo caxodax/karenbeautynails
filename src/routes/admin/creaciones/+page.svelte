@@ -1,12 +1,19 @@
 <script lang="ts">
   import { supabase } from '$lib/supabaseClient';
   import { onMount } from 'svelte';
-  import { Plus, Edit2, Trash2, Image as ImageIcon } from '@lucide/svelte';
+  import { Plus, Edit2, Trash2, List, X } from '@lucide/svelte';
 
   let items = $state<any[]>([]);
+  let categories = $state<any[]>([]);
   let loading = $state(true);
 
-  // Form state
+  // Pagination state
+  let currentPage = $state(1);
+  const itemsPerPage = 6;
+  let totalPages = $derived(Math.max(1, Math.ceil(items.length / itemsPerPage)));
+  let paginatedItems = $derived(items.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage));
+
+  // Form state for Images
   let showForm = $state(false);
   let isEditing = $state(false);
   let currentId = $state<number | null>(null);
@@ -14,16 +21,36 @@
   let formData = $state({
     image_url: '',
     caption: '',
+    category_id: null as number | null,
     active: true
   });
   let imageFile = $state<File | null>(null);
   let isUploading = $state(false);
 
+  // Form state for Categories
+  let showCategoriesModal = $state(false);
+  let newCategoryName = $state('');
+  let isSavingCategory = $state(false);
+
+  const fetchCategories = async () => {
+    const { data, error } = await supabase
+      .from('gallery_categories')
+      .select('*')
+      .order('id', { ascending: true });
+
+    if (error) {
+      console.error('Error fetching categories:', error);
+      alert('Error al cargar categorías: ' + error.message + '. ¿Ejecutaste el script SQL en Supabase?');
+    } else if (data) {
+      categories = data;
+    }
+  };
+
   const fetchItems = async () => {
     loading = true;
     const { data, error } = await supabase
       .from('gallery')
-      .select('*')
+      .select('*, gallery_categories(name)')
       .order('id', { ascending: false });
 
     if (!error && data) {
@@ -32,9 +59,12 @@
     loading = false;
   };
 
-  onMount(() => {
-    fetchItems();
+  onMount(async () => {
+    await fetchCategories();
+    await fetchItems();
   });
+
+  // --- IMAGE MANAGEMENT ---
 
   const openAddForm = () => {
     isEditing = false;
@@ -43,6 +73,7 @@
     formData = {
       image_url: '',
       caption: '',
+      category_id: categories.length > 0 ? categories[0].id : null,
       active: true
     };
     showForm = true;
@@ -55,6 +86,7 @@
     formData = { 
       image_url: item.image_url,
       caption: item.caption || '',
+      category_id: item.category_id,
       active: item.active
     };
     showForm = true;
@@ -64,7 +96,12 @@
     e.preventDefault();
     isUploading = true;
     
-    // Si hay un archivo nuevo, lo subimos primero
+    if (!formData.category_id) {
+      alert('Debes seleccionar una categoría.');
+      isUploading = false;
+      return;
+    }
+
     if (imageFile) {
       const uploadData = new FormData();
       uploadData.append('file', imageFile);
@@ -135,6 +172,42 @@
       if (!error) fetchItems();
     }
   };
+
+  // --- CATEGORY MANAGEMENT ---
+
+  const addCategory = async (e: Event) => {
+    e.preventDefault();
+    if (!newCategoryName.trim()) return;
+    
+    isSavingCategory = true;
+    const { error } = await supabase
+      .from('gallery_categories')
+      .insert([{ name: newCategoryName.trim() }]);
+
+    if (!error) {
+      newCategoryName = '';
+      fetchCategories();
+    } else {
+      alert('Error al crear la categoría.');
+    }
+    isSavingCategory = false;
+  };
+
+  const deleteCategory = async (id: number) => {
+    // Check if category is used
+    const isUsed = items.some(item => item.category_id === id);
+    if (isUsed) {
+      alert('No puedes eliminar esta categoría porque hay fotos que la están usando. Cámbiales la categoría primero.');
+      return;
+    }
+
+    if (confirm('¿Eliminar esta categoría?')) {
+      const { error } = await supabase.from('gallery_categories').delete().eq('id', id);
+      if (!error) fetchCategories();
+      else alert('Error al eliminar.');
+    }
+  };
+
 </script>
 
 <div class="dashboard">
@@ -144,10 +217,16 @@
         <h1>Galería de Creaciones</h1>
         <p>Sube las fotos de tus trabajos para el Lookbook público.</p>
       </div>
-      <button class="btn-primary" onclick={openAddForm}>
-        <Plus size={20} />
-        Añadir Foto
-      </button>
+      <div class="header-actions">
+        <button class="btn-secondary" onclick={() => showCategoriesModal = true}>
+          <List size={20} />
+          Categorías
+        </button>
+        <button class="btn-primary" onclick={openAddForm}>
+          <Plus size={20} />
+          Añadir Foto
+        </button>
+      </div>
     </div>
   </header>
 
@@ -167,7 +246,20 @@
             onchange={(e) => imageFile = e.currentTarget.files?.[0] || null} 
             required={!isEditing}
           />
-          <small>Selecciona la foto desde tu dispositivo. Se subirá a alta velocidad vía Cloudflare R2.</small>
+          <small>Selecciona la foto. Se subirá a alta velocidad vía Cloudflare R2.</small>
+        </div>
+
+        <div class="input-group">
+          <label for="categorySelect">Categoría</label>
+          <select id="categorySelect" bind:value={formData.category_id} required>
+            <option value={null} disabled>Selecciona una categoría...</option>
+            {#each categories as cat}
+              <option value={cat.id}>{cat.name}</option>
+            {/each}
+          </select>
+          {#if categories.length === 0}
+            <small style="color: red;">Primero debes crear una categoría desde el botón "Categorías".</small>
+          {/if}
         </div>
 
         <div class="input-group">
@@ -178,7 +270,7 @@
 
         <div class="form-actions">
           <button type="button" class="btn-cancel" onclick={() => showForm = false} disabled={isUploading}>Cancelar</button>
-          <button type="submit" class="btn-submit" disabled={isUploading}>
+          <button type="submit" class="btn-submit" disabled={isUploading || categories.length === 0}>
             {isUploading ? 'Subiendo y Guardando...' : 'Guardar Foto'}
           </button>
         </div>
@@ -196,12 +288,15 @@
       {#if items.length === 0}
         <p class="empty-state">No has subido ninguna foto a la galería aún.</p>
       {:else}
-        {#each items as item}
+        {#each paginatedItems as item (item.id)}
           <div class="gallery-card {item.active ? '' : 'inactive'}">
             <div class="img-container">
               <img src={item.image_url} alt={item.caption} loading="lazy" />
               {#if !item.active}
-                <span class="badge-inactive">Oculta</span>
+                <span class="badge badge-inactive">Oculta</span>
+              {/if}
+              {#if item.gallery_categories?.name}
+                <span class="badge badge-category">{item.gallery_categories.name}</span>
               {/if}
             </div>
             <div class="info">
@@ -225,8 +320,65 @@
         {/each}
       {/if}
     </div>
+
+    <!-- Paginación Admin -->
+    {#if totalPages > 1}
+      <div class="pagination">
+        <button 
+          class="page-btn" 
+          disabled={currentPage === 1} 
+          onclick={() => { currentPage--; window.scrollTo({ top: 0, behavior: 'smooth' }); }}>
+          &laquo; Ant
+        </button>
+        <div class="page-info">
+          Página {currentPage} de {totalPages}
+        </div>
+        <button 
+          class="page-btn" 
+          disabled={currentPage === totalPages} 
+          onclick={() => { currentPage++; window.scrollTo({ top: 0, behavior: 'smooth' }); }}>
+          Sig &raquo;
+        </button>
+      </div>
+    {/if}
   {/if}
 </div>
+
+<!-- CATEGORIES MODAL -->
+{#if showCategoriesModal}
+  <div class="modal-backdrop" onclick={() => showCategoriesModal = false}>
+    <div class="modal-content" onclick={(e) => e.stopPropagation()}>
+      <button class="close-modal" onclick={() => showCategoriesModal = false}>
+        <X size={24} />
+      </button>
+      
+      <h2>Gestionar Categorías</h2>
+      <p>Organiza tu portafolio por tipo de servicio.</p>
+
+      <form class="category-form" onsubmit={addCategory}>
+        <input type="text" bind:value={newCategoryName} placeholder="Ej. Uñas Acrílicas" required />
+        <button type="submit" disabled={isSavingCategory}>
+          {isSavingCategory ? '...' : 'Añadir'}
+        </button>
+      </form>
+
+      <div class="categories-list">
+        {#if categories.length === 0}
+          <p class="empty-cat">No hay categorías. Añade una arriba.</p>
+        {:else}
+          {#each categories as cat}
+            <div class="cat-item">
+              <span>{cat.name}</span>
+              <button class="btn-icon delete" onclick={() => deleteCategory(cat.id)} title="Eliminar Categoría">
+                <Trash2 size={16} />
+              </button>
+            </div>
+          {/each}
+        {/if}
+      </div>
+    </div>
+  </div>
+{/if}
 
 <style>
   .dashboard header {
@@ -239,6 +391,11 @@
     align-items: center;
     flex-wrap: wrap;
     gap: 16px;
+  }
+
+  .header-actions {
+    display: flex;
+    gap: 12px;
   }
 
   h1 { margin: 0 0 8px 0; color: var(--color-grafito, #2A2C2E); }
@@ -259,6 +416,23 @@
   }
   .btn-primary:active { transform: scale(0.95); }
 
+  .btn-secondary {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background-color: #f3f4f6;
+    color: var(--color-grafito);
+    border: 1px solid #e5e7eb;
+    padding: 10px 16px;
+    border-radius: 12px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background-color 0.2s;
+  }
+  .btn-secondary:hover {
+    background-color: #e5e7eb;
+  }
+
   /* Form Styles */
   .form-card {
     background: white;
@@ -277,25 +451,16 @@
 
   label { font-weight: 600; font-size: 0.9rem; color: #444; }
   
-  input {
+  input, select {
     padding: 12px;
     border: 1.5px solid #eaeaea;
     border-radius: 8px;
     font-family: inherit;
     width: 100%;
     box-sizing: border-box;
+    background-color: white;
   }
-  
-  .image-input {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    border: 1.5px solid #eaeaea;
-    padding: 0 12px;
-    border-radius: 8px;
-  }
-  .image-input input { border: none; padding-left: 0; }
-  .image-input input:focus { outline: none; }
+  select:focus, input:focus { outline: none; border-color: var(--color-primary); }
   
   small { color: #888; font-size: 0.8rem; }
 
@@ -314,6 +479,7 @@
     font-weight: 600;
     cursor: pointer;
   }
+  .btn-submit:disabled { opacity: 0.7; cursor: not-allowed; }
   .btn-cancel {
     padding: 12px 24px;
     background: transparent;
@@ -371,16 +537,24 @@
     object-fit: cover;
   }
   
-  .badge-inactive {
+  .badge {
     position: absolute;
-    top: 12px;
-    right: 12px;
-    background: rgba(0,0,0,0.7);
     color: white;
     padding: 4px 8px;
     border-radius: 6px;
     font-size: 0.75rem;
     font-weight: 600;
+  }
+  .badge-inactive {
+    top: 12px;
+    right: 12px;
+    background: rgba(0,0,0,0.7);
+  }
+  .badge-category {
+    bottom: 12px;
+    left: 12px;
+    background: var(--color-primary);
+    box-shadow: 0 2px 4px rgba(0,0,0,0.2);
   }
 
   .info {
@@ -438,8 +612,87 @@
     border-radius: 12px;
   }
 
+  /* Modal Categories */
+  .modal-backdrop {
+    position: fixed;
+    top: 0; left: 0; width: 100%; height: 100%;
+    background: rgba(0,0,0,0.5);
+    display: flex; align-items: center; justify-content: center;
+    z-index: 100;
+    backdrop-filter: blur(4px);
+  }
+  .modal-content {
+    background: white;
+    padding: 32px;
+    border-radius: 16px;
+    width: 90%;
+    max-width: 400px;
+    position: relative;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+  }
+  .close-modal {
+    position: absolute;
+    top: 16px; right: 16px;
+    background: none; border: none; cursor: pointer; color: #888;
+  }
+  .modal-content h2 { margin: 0 0 8px 0; font-size: 1.5rem; }
+  .modal-content p { color: #666; margin-bottom: 24px; font-size: 0.9rem; }
+  
+  .category-form {
+    display: flex; gap: 8px; margin-bottom: 24px;
+  }
+  .category-form button {
+    background: var(--color-grafito); color: white; border: none;
+    padding: 0 16px; border-radius: 8px; font-weight: 600; cursor: pointer;
+  }
+  
+  .categories-list {
+    display: flex; flex-direction: column; gap: 8px;
+    max-height: 300px; overflow-y: auto;
+  }
+  .cat-item {
+    display: flex; justify-content: space-between; align-items: center;
+    background: #f9fafb; padding: 12px 16px; border-radius: 8px;
+    border: 1px solid #f3f4f6;
+  }
+  .empty-cat { text-align: center; color: #aaa; font-style: italic; }
+
+  /* Admin Pagination */
+  .pagination {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 16px;
+    margin-top: 40px;
+    padding-bottom: 24px;
+  }
+  .page-btn {
+    background: white;
+    border: 1px solid #ddd;
+    color: var(--color-grafito);
+    padding: 8px 16px;
+    border-radius: 8px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  .page-btn:hover:not(:disabled) {
+    border-color: var(--color-primary);
+    color: var(--color-primary);
+  }
+  .page-btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    background: #f9f9f9;
+  }
+  .page-info {
+    font-size: 0.95rem;
+    color: #555;
+    font-weight: 500;
+  }
+
   @media (max-width: 600px) {
     .header-content { flex-direction: column; align-items: stretch; text-align: center; }
-    .btn-primary { justify-content: center; }
+    .header-actions { justify-content: center; }
   }
 </style>

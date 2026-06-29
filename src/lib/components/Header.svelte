@@ -4,18 +4,19 @@
 
 <header class="header">
   <div class="header-container">
-    <div class="logo">
+    <a href="/" class="logo" style="text-decoration:none;">
       <Sparkles color="var(--color-primary)" size={20} strokeWidth={2.5} />
       <span>Karen Beauty</span>
-    </div>
+    </a>
     
     <div class="nav-wrapper">
       <nav class="nav-desktop">
-        <a href="#servicios">Servicios</a>
-        <a href="#testimonios">Testimonios</a>
+        <a href="/#servicios">Servicios</a>
+        <a href="/#creaciones">Creaciones</a>
+        <a href="/#testimonios">Testimonios</a>
       </nav>
       
-      <a href="#servicios" class="btn-cta-small nav-desktop" style="text-decoration:none;">
+      <a href="/#servicios" class="btn-cta-small nav-desktop" style="text-decoration:none;">
         Reservar Cita
       </a>
       

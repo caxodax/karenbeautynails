@@ -21,7 +21,8 @@ Desarrollo de una aplicación web progresiva (PWA / SPA) de alto rendimiento ori
 | **SvelteKit** | Framework principal (SPA/PWA) con Server Endpoints. | Elimina el Virtual DOM. Código ultraligero, responde instantáneamente a interacciones táctiles. |
 | **Supabase (PostgreSQL)** | Base de datos en la nube y persistencia. | Carga inmediata de precios e información estructural sin retardos de consulta. |
 | **Cloudflare R2** | Almacenamiento de objetos masivos (Fotos). | Las fotos cargan en milisegundos gracias a la CDN global. |
-| **Google Calendar API** | Motor lógico transaccional de disponibilidad. | Evita la sobre-reserva reflejando huecos libres reales. |
+| **Make.com & Webhooks** | Plataforma de automatización de flujos. | Orquesta la creación de eventos en calendario basándose en duraciones dinámicas desde Supabase. |
+| **Google Calendar API** | Motor lógico transaccional de disponibilidad. | Evita la sobre-reserva reflejando huecos libres reales. Incluye enlaces "Click-to-Chat" de WhatsApp. |
 | **Vercel (Edge Network)** | Infraestructura de despliegue. | Tiempo de respuesta de servidor mínimo en nodos perimetrales. |
 | **Vercel Web Analytics** | Analítica ligera orientada a privacidad. | No impacta el rendimiento y permite medir con precisión la tasa de abandono del embudo. |
 
@@ -89,4 +90,5 @@ La especialista gestiona su negocio en movimiento desde su teléfono (`/admin`).
 * **Subida de Multimedia:** Interfaz *drag & drop* o pulsación para abrir la cámara. Procesamiento en segundo plano antes de impactar en Cloudflare R2.
 * **Resumen Visual de Agenda:** Dashboard que condensa las próximas citas en una línea de tiempo limpia de alto contraste, con botón de acceso directo a WhatsApp para envíos de recordatorios con un solo toque.
 * **Inteligencia de Clientes (Historial):** Uso del número de WhatsApp como identificador único. El sistema cruza datos automáticamente para mostrar si una cita entrante es de una "Clienta Frecuente" (mostrando su última visita) o si tiene un historial de inasistencias (No-shows).
-* **Moderación de Testimonios:** Buzón de entrada simple para aprobar, rechazar o destacar los comentarios dejados por las clientas antes de que se hagan públicos en la vista principal.
+* **Moderación de Testimonios:** Buzón de entrada paginado para aprobar, rechazar o destacar los comentarios. Incluye funcionalidad de gestión en lote (Bulk Approve) para agilizar la revisión cuando hay muchas solicitudes pendientes.
+* **Automatización de Notificaciones:** Integración vía webhooks que alimenta Make.com con los datos de Supabase, calculando los bloques de duración en Google Calendar y generando enlaces dinámicos de confirmación vía WhatsApp directamente en el evento del calendario.
