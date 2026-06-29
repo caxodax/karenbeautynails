@@ -174,24 +174,32 @@
 
 <div class="booking-layout">
   <header class="booking-header">
-    {#if step > 1 && step < 4}
-      <button class="back-btn" onclick={prevStep}>
-        <ArrowLeft size={24} />
-      </button>
-    {:else}
-      <a href="/#servicios" class="back-btn">
-        <ArrowLeft size={24} />
-      </a>
-    {/if}
-    <div class="header-title">
-      {#if step === 1} Confirmar Servicio
-      {:else if step === 2} Elegir Fecha
-      {:else if step === 3} Elegir Hora
-      {:else if step === 4} Tus Datos
-      {:else} ¡Cita Confirmada!
+    <div class="header-inner">
+      {#if step > 1 && step < 4}
+        <button class="back-btn" onclick={prevStep}>
+          <ArrowLeft size={24} />
+        </button>
+      {:else}
+        <a href="/#servicios" class="back-btn">
+          <ArrowLeft size={24} />
+        </a>
       {/if}
+      <div class="header-title">
+        {#if step === 1} Confirmar Servicio
+        {:else if step === 2} Elegir Fecha
+        {:else if step === 3} Elegir Hora
+        {:else if step === 4} Tus Datos
+        {:else} ¡Cita Confirmada!
+        {/if}
+      </div>
+      <div style="width: 24px"></div>
     </div>
-    <div style="width: 24px"></div>
+    <!-- WIZARD PROGRESS BAR -->
+    {#if step < 5}
+      <div class="progress-bar">
+        <div class="progress-fill" style="width: {(step / 4) * 100}%"></div>
+      </div>
+    {/if}
   </header>
 
   <main class="booking-content">
@@ -201,12 +209,7 @@
       <div class="error-state">Servicio no encontrado.</div>
     {:else}
       
-      <!-- WIZARD PROGRESS BAR -->
-      {#if step < 5}
-        <div class="progress-bar">
-          <div class="progress-fill" style="width: {(step / 4) * 100}%"></div>
-        </div>
-      {/if}
+      <!-- CONTENT BELOW -->
 
       <!-- SUCCESS SCREEN -->
       {#if step === 5}
@@ -401,15 +404,18 @@
   }
 
   .booking-header {
+    background-color: var(--color-blanco);
+    position: sticky;
+    top: 50px; /* Debajo del Header principal */
+    z-index: 50;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.02);
+  }
+
+  .header-inner {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    padding: 20px 24px;
-    background-color: var(--color-blanco);
-    position: sticky;
-    top: 0;
-    z-index: 50;
-    border-bottom: 1px solid rgba(0,0,0,0.05);
+    padding: 16px 24px;
   }
 
   .back-btn {
@@ -436,6 +442,7 @@
     padding: 0;
     display: flex;
     flex-direction: column;
+    padding-top: 8px;
   }
 
   .progress-bar {
