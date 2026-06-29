@@ -19,8 +19,8 @@
   let showSuccess = $state(false);
 
   // Calendar State
-  let currentMonth = $state(new Date()); 
-  currentMonth.setDate(1); 
+  const now = new Date();
+  let currentMonth = $state(new Date(now.getFullYear(), now.getMonth(), 1));
 
   const today = new Date();
   today.setHours(0,0,0,0);
@@ -129,6 +129,12 @@
     return day >= today && day <= maxDate;
   };
 
+  const isSameDay = (d1: Date, d2: Date) => {
+    return d1.getFullYear() === d2.getFullYear() &&
+           d1.getMonth() === d2.getMonth() &&
+           d1.getDate() === d2.getDate();
+  };
+
   const selectTime = (time: string) => {
     selectedTime = time;
     nextStep();
@@ -228,9 +234,9 @@
           </div>
           <div class="location-details">
             <strong>Karen Beauty Studio</strong>
-            <span>Av. Principal 123, Centro</span>
+            <span>Lord Cochrane 1030, 1005, 8330989 Santiago, Región Metropolitana, Chile</span>
           </div>
-          <a href="https://maps.google.com" target="_blank" class="btn-map" rel="noopener noreferrer">Mapa</a>
+          <a href="https://maps.app.goo.gl/cB67MgSXuWoiHPnv7" target="_blank" class="btn-map" rel="noopener noreferrer">Mapa</a>
         </div>
 
         <a href="/" class="btn-cta full-width">Volver al Inicio</a>
@@ -245,7 +251,9 @@
               <h3 style="font-size: 1.4rem; margin-bottom: 12px;">{service.name}</h3>
               <p style="color: #666; margin-bottom: 24px;">{service.description}</p>
               <div class="meta-row" style="display:flex; justify-content:space-between; align-items:center; border-top:1px solid #eee; padding-top:16px;">
-                <span style="font-size: 1.5rem; color: var(--color-primary); font-weight: 500;">${service.price}</span>
+                <span style="font-size: 1.5rem; color: var(--color-primary); font-weight: 500;">
+                  {new Intl.NumberFormat('es-CL', { style: 'currency', currency: 'CLP', maximumFractionDigits: 0 }).format(service.price)}
+                </span>
                 <span class="duration"><Clock size={16}/> {service.duration_minutes} min</span>
               </div>
             </div>
@@ -265,7 +273,7 @@
 
           <section class="booking-section" style="padding:0; box-shadow:none; background:transparent;">
           <div class="section-header">
-            <CalendarIcon size={20} class="section-icon" />
+            <CalendarIcon size={20} color="var(--color-primary)" />
             <h2>1. Selecciona la Fecha</h2>
           </div>
           
@@ -299,6 +307,7 @@
             </div>
             <div class="calendar-note">Las citas solo pueden reservarse con hasta 10 días de anticipación.</div>
           </div>
+          </section>
         </div>
       {/if}
 
@@ -310,7 +319,7 @@
 
           <section class="booking-section" style="padding:0; box-shadow:none; background:transparent;">
             <div class="section-header">
-              <Clock size={20} class="section-icon" />
+              <Clock size={20} color="var(--color-primary)" />
               <h2>Elige la Hora</h2>
             </div>
             
@@ -345,7 +354,7 @@
 
           <section class="booking-section" style="padding:0; box-shadow:none; background:transparent;">
           <div class="section-header">
-            <User size={20} class="section-icon" />
+            <User size={20} color="var(--color-primary)" />
             <h2>Tus Datos</h2>
           </div>
           
@@ -479,7 +488,6 @@
     color: var(--color-grafito);
   }
   
-  .section-icon { color: var(--color-primary); }
   .section-header h2 { margin: 0; font-size: 1.1rem; font-family: var(--font-sans); }
 
   /* Calendar Widget */
@@ -564,11 +572,6 @@
   }
   
   .time-btn:hover { border-color: var(--color-primary); color: var(--color-primary); }
-  .time-btn.active {
-    background: var(--color-primary);
-    color: white;
-    border-color: var(--color-primary);
-  }
   
   .loading-times, .empty-state {
     text-align: center;

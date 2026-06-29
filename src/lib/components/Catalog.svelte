@@ -60,7 +60,9 @@
                 <h3>{service.name}</h3>
                 <p class="description">{service.description}</p>
                 <div class="meta">
-                  <span class="price">${service.price}</span>
+                  <span class="price">
+                    {new Intl.NumberFormat('es-CL', { style: 'currency', currency: 'CLP', maximumFractionDigits: 0 }).format(service.price)}
+                  </span>
                   <span class="duration">
                     <Clock size={14} />
                     {service.duration_minutes} min
