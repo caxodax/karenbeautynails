@@ -69,6 +69,7 @@
     selectedTime = null;
     isLoadingTimes = true;
     dynamicAvailableTimes = [];
+    nextStep(); // Advance to Step 3 (Time selection)
     
     try {
       // Usar fecha local para evitar problemas de zona horaria al buscar en DB
@@ -157,7 +158,7 @@
 
     isSubmitting = false;
     if (!error) {
-      step = 4;
+      step = 5;
     } else {
       alert("Hubo un error al agendar. Por favor, intenta de nuevo.");
       console.error(error);
@@ -178,8 +179,9 @@
     {/if}
     <div class="header-title">
       {#if step === 1} Confirmar Servicio
-      {:else if step === 2} Elegir Fecha y Hora
-      {:else if step === 3} Tus Datos
+      {:else if step === 2} Elegir Fecha
+      {:else if step === 3} Elegir Hora
+      {:else if step === 4} Tus Datos
       {:else} ¡Cita Confirmada!
       {/if}
     </div>
@@ -194,14 +196,14 @@
     {:else}
       
       <!-- WIZARD PROGRESS BAR -->
-      {#if step < 4}
+      {#if step < 5}
         <div class="progress-bar">
-          <div class="progress-fill" style="width: {(step / 3) * 100}%"></div>
+          <div class="progress-fill" style="width: {(step / 4) * 100}%"></div>
         </div>
       {/if}
 
       <!-- SUCCESS SCREEN -->
-      {#if step === 4}
+      {#if step === 5}
         <div class="success-container animation-scale">
         <div class="calendar-card">
           <div class="calendar-header">
@@ -297,36 +299,43 @@
             </div>
             <div class="calendar-note">Las citas solo pueden reservarse con hasta 10 días de anticipación.</div>
           </div>
-
-          {#if selectedDate}
-            <div class="animation-slide" style="margin-top: 32px;">
-              <div class="section-header">
-                <Clock size={20} class="section-icon" />
-                <h2>2. Elige la Hora para el {new Intl.DateTimeFormat('es', { weekday: 'long', day: 'numeric', month: 'long' }).format(selectedDate)}</h2>
-              </div>
-              
-              {#if isLoadingTimes}
-                <div class="loading-times">Consultando disponibilidad...</div>
-              {:else if dynamicAvailableTimes.length > 0}
-                <div class="times-grid">
-                  {#each dynamicAvailableTimes as time}
-                    <button 
-                      class="time-btn"
-                      onclick={() => selectTime(time)}
-                    >
-                      {time}
-                    </button>
-                  {/each}
-                </div>
-              {:else}
-                <div class="empty-state">Día ocupado. Por favor elige otra fecha.</div>
-              {/if}
-            </div>
-          {/if}
         </div>
       {/if}
 
       {#if step === 3}
+        <div class="step-container animation-slide">
+          <div class="summary-chip" style="background:white; padding:12px 16px; border-radius:12px; margin-bottom:24px; box-shadow:var(--shadow-sm);">
+            <span style="opacity:0.6;">Fecha elegida:</span> {new Intl.DateTimeFormat('es', { weekday: 'long', day: 'numeric', month: 'long' }).format(selectedDate as Date)}
+          </div>
+
+          <section class="booking-section" style="padding:0; box-shadow:none; background:transparent;">
+            <div class="section-header">
+              <Clock size={20} class="section-icon" />
+              <h2>Elige la Hora</h2>
+            </div>
+            
+            {#if isLoadingTimes}
+              <div class="loading-times">Consultando disponibilidad...</div>
+            {:else if dynamicAvailableTimes.length > 0}
+              <div class="times-grid">
+                {#each dynamicAvailableTimes as time}
+                  <button 
+                    class="time-btn"
+                    onclick={() => selectTime(time)}
+                  >
+                    {time}
+                  </button>
+                {/each}
+              </div>
+            {:else}
+              <div class="empty-state">Día ocupado. Por favor regresa y elige otra fecha.</div>
+              <button class="btn-outline full-width" onclick={prevStep} style="margin-top: 20px;">Elegir otro día</button>
+            {/if}
+          </section>
+        </div>
+      {/if}
+
+      {#if step === 4}
         <div class="step-container animation-slide">
           
           <div class="summary-chip" style="background:white; padding:20px; border-radius:16px; margin-bottom:32px; box-shadow:var(--shadow-sm); display:flex; flex-direction:column; gap:12px;">
@@ -337,7 +346,7 @@
           <section class="booking-section" style="padding:0; box-shadow:none; background:transparent;">
           <div class="section-header">
             <User size={20} class="section-icon" />
-            <h2>3. Tus Datos</h2>
+            <h2>Tus Datos</h2>
           </div>
           
           <form class="booking-form" onsubmit={submitBooking}>
