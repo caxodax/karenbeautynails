@@ -542,27 +542,39 @@
 
   .gallery-card {
     background: white;
-    border-radius: 12px;
+    border-radius: 24px;
     overflow: hidden;
-    box-shadow: 0 4px 12px rgba(0,0,0,0.04);
+    box-shadow: 0 4px 24px rgba(0,0,0,0.03);
     display: flex;
     flex-direction: column;
-    transition: opacity 0.3s;
+    border: 1px solid rgba(0,0,0,0.02);
+    transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.4s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.3s;
   }
   
-  .gallery-card.inactive { opacity: 0.6; }
+  .gallery-card:hover {
+    transform: translateY(-6px);
+    box-shadow: 0 16px 40px rgba(179, 102, 109, 0.12);
+  }
+  
+  .gallery-card.inactive { opacity: 0.6; transform: none; box-shadow: 0 4px 12px rgba(0,0,0,0.04); }
 
   .img-container {
     position: relative;
     width: 100%;
     aspect-ratio: 1/1;
     background-color: #f0f0f0;
+    overflow: hidden;
   }
   
   .img-container img {
     width: 100%;
     height: 100%;
     object-fit: cover;
+    transition: transform 0.5s ease;
+  }
+  
+  .gallery-card:hover .img-container img {
+    transform: scale(1.05);
   }
   
   .badge {

@@ -1,7 +1,7 @@
 <script lang="ts">
   import { supabase } from '$lib/supabaseClient';
   import { onMount } from 'svelte';
-  import { Plus, Edit2, Trash2, Image as ImageIcon } from '@lucide/svelte';
+  import { Plus, Edit2, Trash2, Image as ImageIcon, Clock } from '@lucide/svelte';
 
   let services = $state<any[]>([]);
   let loading = $state(true);
@@ -218,8 +218,10 @@
             <h3>{service.name}</h3>
             <p class="desc">{service.description}</p>
             <div class="details">
-              <span class="price">${service.price}</span>
-              <span class="time">{service.duration_minutes} min</span>
+              <span class="price">
+                {new Intl.NumberFormat('es-CL', { style: 'currency', currency: 'CLP', maximumFractionDigits: 0 }).format(service.price)}
+              </span>
+              <span class="time"><Clock size={14} style="margin-right:4px;" />{service.duration_minutes} min</span>
             </div>
             
             <div class="actions">
@@ -351,26 +353,38 @@
 
   .service-card {
     background: white;
-    border-radius: 16px;
+    border-radius: 24px;
     overflow: hidden;
-    box-shadow: 0 4px 12px rgba(0,0,0,0.04);
+    box-shadow: 0 4px 24px rgba(0,0,0,0.03);
     display: flex;
     flex-direction: column;
-    transition: opacity 0.3s;
+    border: 1px solid rgba(0,0,0,0.02);
+    transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.4s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.3s;
   }
   
-  .service-card.inactive { opacity: 0.6; }
+  .service-card:hover {
+    transform: translateY(-6px);
+    box-shadow: 0 16px 40px rgba(179, 102, 109, 0.12);
+  }
+  
+  .service-card.inactive { opacity: 0.6; transform: none; box-shadow: 0 4px 12px rgba(0,0,0,0.04); }
 
   .img-container {
     position: relative;
-    height: 180px;
+    height: 220px;
     background-color: #f0f0f0;
+    overflow: hidden;
   }
   
   .img-container img {
     width: 100%;
     height: 100%;
     object-fit: cover;
+    transition: transform 0.5s ease;
+  }
+  
+  .service-card:hover .img-container img {
+    transform: scale(1.05);
   }
   
   .badge-inactive {
@@ -386,26 +400,26 @@
   }
 
   .info {
-    padding: 20px;
+    padding: 24px;
     display: flex;
     flex-direction: column;
     flex-grow: 1;
   }
 
-  h3 { margin: 0 0 8px 0; color: var(--color-grafito); }
-  .desc { color: #666; font-size: 0.9rem; margin: 0 0 16px 0; flex-grow: 1; }
+  h3 { margin: 0 0 12px 0; color: var(--color-grafito); font-family: var(--font-heading); font-size: 1.25rem; }
+  .desc { color: #666; font-size: 0.95rem; margin: 0 0 16px 0; flex-grow: 1; line-height: 1.5; }
   
   .details {
     display: flex;
     justify-content: space-between;
     align-items: center;
     margin-bottom: 20px;
-    padding-bottom: 16px;
-    border-bottom: 1px solid #eee;
+    padding-bottom: 20px;
+    border-bottom: 1px solid rgba(0,0,0,0.05);
   }
   
-  .price { font-weight: 700; color: var(--color-primary); font-size: 1.1rem; }
-  .time { color: #888; font-size: 0.9rem; }
+  .price { font-weight: 500; color: var(--color-primary); font-size: 1.4rem; font-family: var(--font-heading); }
+  .time { color: #888; font-size: 0.85rem; display: flex; align-items: center; }
 
   .actions {
     display: flex;
