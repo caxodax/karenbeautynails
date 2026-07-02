@@ -47,8 +47,7 @@
     height: 100%;
     background-size: cover;
     background-position: center;
-    transform: scale(1.05); /* Slight zoom for subtle animation effect */
-    animation: slowZoom 20s ease-out forwards;
+    /* Removida la animación de zoom para mejorar la nitidez (pixel-perfect) */
   }
 
   .hero-overlay {
@@ -120,10 +119,5 @@
       opacity: 1;
       transform: translateY(0);
     }
-  }
-
-  @keyframes slowZoom {
-    from { transform: scale(1.05); }
-    to { transform: scale(1); }
   }
 </style>
