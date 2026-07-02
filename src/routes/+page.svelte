@@ -1,8 +1,10 @@
-<script>
+<script lang="ts">
   import Hero from '$lib/components/Hero.svelte';
   import Catalog from '$lib/components/Catalog.svelte';
   import Gallery from '$lib/components/Gallery.svelte';
   import Testimonials from '$lib/components/Testimonials.svelte';
+
+  let { data } = $props();
 </script>
 
 <svelte:head>
@@ -11,7 +13,7 @@
 </svelte:head>
 
 <main>
-  <Hero />
+  <Hero settings={data.settings} />
   <Catalog />
   <Gallery />
   <Testimonials />

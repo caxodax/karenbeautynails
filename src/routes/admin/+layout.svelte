@@ -1,5 +1,5 @@
 <script lang="ts">
-    import { CalendarCheck, MessageSquare, PlusSquare, Image as ImageIcon } from "@lucide/svelte";
+    import { CalendarCheck, MessageSquare, PlusSquare, Image as ImageIcon, Settings } from "@lucide/svelte";
     import { page } from "$app/stores";
     let { children } = $props();
 </script>
@@ -46,6 +46,15 @@
             >
                 <ImageIcon size={20} />
                 Galería
+            </a>
+            <a
+                href="/admin/ajustes"
+                class="nav-item {($page.url.pathname as string) === '/admin/ajustes'
+                    ? 'active'
+                    : ''}"
+            >
+                <Settings size={20} />
+                Ajustes
             </a>
         </nav>
     </aside>

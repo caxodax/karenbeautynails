@@ -1,15 +1,21 @@
-<script>
+<script lang="ts">
   import { ArrowRight } from '@lucide/svelte';
+  
+  let { settings = {
+    hero_image_url: '/hero_bg.png',
+    hero_title: 'El arte de cuidar tu esencia',
+    hero_subtitle: 'Diseño de uñas y estética profesional en un ambiente diseñado para tu relajación absoluta.'
+  } } = $props();
 </script>
 
 <section class="hero">
-  <div class="hero-bg"></div>
+  <div class="hero-bg" style="background-image: url('{settings.hero_image_url}');"></div>
   <div class="hero-overlay"></div>
   
   <div class="hero-content">
     <span class="badge">ESTUDIO DE MANICURA PREMIUM</span>
-    <h1>El arte de cuidar <br/>tu esencia</h1>
-    <p>Diseño de uñas y estética profesional en un ambiente diseñado para tu relajación absoluta.</p>
+    <h1>{@html settings.hero_title.replace(/\n/g, '<br/>')}</h1>
+    <p>{settings.hero_subtitle}</p>
     
     <div class="cta-group">
       <a href="#servicios" class="btn-cta" style="display:inline-flex; text-decoration:none;">
@@ -39,7 +45,6 @@
     left: 0;
     width: 100%;
     height: 100%;
-    background-image: url('/hero_bg.png');
     background-size: cover;
     background-position: center;
     transform: scale(1.05); /* Slight zoom for subtle animation effect */
