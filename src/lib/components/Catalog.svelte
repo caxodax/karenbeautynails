@@ -142,7 +142,7 @@
   }
 
   .card-image-wrapper {
-    height: 220px;
+    aspect-ratio: 4/3;
     width: 100%;
     overflow: hidden;
     background-color: var(--color-accent);

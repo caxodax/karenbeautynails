@@ -371,7 +371,7 @@
 
   .img-container {
     position: relative;
-    height: 220px;
+    aspect-ratio: 4/3;
     background-color: #f0f0f0;
     overflow: hidden;
   }
